@@ -46,4 +46,7 @@ python scripts/run_workflow.py "Spring Wellness" --style practical --theme shuim
 
 ## License
 
+Copyright © 2026 煜耀乾坤
+GitHub: https://github.com/yuyaoqiankun
+
 This project is released under the MIT License (see `LICENSE`).
