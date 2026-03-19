@@ -1,4 +1,4 @@
-# WeChat Article Writer（Open Edition）
+# WeChat Auto Writer（Open Edition）
 
 面向微信公众号运营者的自动化工作流：从选题到草稿，一条命令跑完。
 
