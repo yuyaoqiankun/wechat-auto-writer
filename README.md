@@ -1,46 +1,240 @@
 # WeChat Auto Writer（Open Edition）
 
-面向微信公众号运营者的自动化工作流：从选题到草稿，一条命令跑完。
+一个面向普通用户的 OpenClaw 公众号自动化 Skill：
+输入选题后，自动完成 **写文 → 配图 → 排版 → 推送公众号草稿箱**。
+
+> 目标：让不懂代码的运营同学，也能按文档一步步跑通全链路。
 
 ---
 
-## ✨ 功能特性
+## 目录
 
-- 主题输入 → 自动生成文章草稿（Markdown 优先）
-- 自动提取公众号草稿所需标题与摘要
-- 自动生成封面图 + 正文配图（支持候选 fallback）
-- 基于主题模板渲染公众号 HTML
-- 可选上传图片素材并替换链接
-- 自动推送草稿并执行回读校验
+- [1. 项目介绍](#1-项目介绍)
+- [2. 核心架构与工作流程](#2-核心架构与工作流程)
+- [3. 环境要求](#3-环境要求)
+- [4. 基础配置（小白必看）](#4-基础配置小白必看)
+- [5. LLM 接口与推荐配置](#5-llm-接口与推荐配置)
+- [6. 文生图接口与推荐配置](#6-文生图接口与推荐配置)
+- [7. 主题系统（全部主题 + 选型建议）](#7-主题系统全部主题--选型建议)
+- [8. 在 OpenClaw 安装本项目的方法](#8-在-openclaw-安装本项目的方法)
+- [9. OpenClaw 标准操作流程（含案例命令）](#9-openclaw-标准操作流程含案例命令)
+- [10. CLI 直接运行（不走自然语言）](#10-cli-直接运行不走自然语言)
+- [11. 常见问题](#11-常见问题)
+- [12. 安全与开源发布注意事项](#12-安全与开源发布注意事项)
+- [13. 许可证与作者](#13-许可证与作者)
 
 ---
 
-## 🧭 适用人群
+## 1. 项目介绍
 
-- 想提升发文效率的公众号运营者
-- 需要脚本化内容生产流程的开发者
-- 希望把“写稿→配图→排版→草稿”标准化的团队
+本项目用于把公众号发文流程标准化与自动化：
+
+- 自动生成文章（Markdown）
+- 自动生成封面图与正文配图
+- 自动套用排版主题并生成公众号可用 HTML
+- 自动上传素材并推送到公众号草稿箱
+- 自动回读校验草稿内容
+
+适用人群：
+
+- 公众号运营者（希望提效）
+- 内容团队（希望流程标准化）
+- 开发者（希望可脚本化接入）
 
 ---
 
-## 🚀 快速开始
+## 2. 核心架构与工作流程
 
-### 1）准备配置文件
+核心脚本入口：`scripts/run_workflow.py`
+
+标准流程：
+
+1. `write_article.py`：生成文章初稿
+2. `wechat_metadata.py`：提取短标题和摘要
+3. `add_article_images.py`：规划正文配图位
+4. `generate_image.py`：生成封面图 + 正文图
+5. `compress_image.py`：压缩与尺寸规范化
+6. `format_article.py`：渲染主题，转公众号 HTML
+7. `publish_draft.py`：推送草稿箱并回读校验
+
+你可以把它理解成“内容流水线”，每个步骤都有可复用输出，失败时可局部重试。
+
+---
+
+## 3. 环境要求
+
+基础要求：
+
+- Linux / macOS（推荐 Linux）
+- Python 3.10+
+- 可访问所选 LLM 与图像模型 API
+- 可访问微信公众号 API
+
+常见依赖：
+
+- `requests`
+- `PyYAML`
+- `Pillow`
+
+如果你在 OpenClaw 环境中运行，通常可直接使用已有 Python 虚拟环境。
+
+---
+
+## 4. 基础配置（小白必看）
+
+### 4.1 先复制配置模板
 
 ```bash
 cp config.example.json config.json
 ```
 
-### 2）在 `config.json` 填写你的信息
+### 4.2 最少要填哪些字段
 
-至少填写：
+- `llm_candidates`（文本模型）
+- `image_candidates`（图片模型）
+- `appid`（公众号）
+- `appsecret`（公众号）
 
-- `llm_candidates`
-- `image_candidates`
-- `appid`
-- `appsecret`
+### 4.3 推荐最小可用配置（示例）
 
-### 3）运行完整链路（含推送草稿）
+```json
+{
+  "llm_candidates": [
+    {
+      "enabled": true,
+      "provider": "openai_compatible",
+      "base_url": "https://your-llm-endpoint/v1",
+      "api_key": "sk-xxx",
+      "model": "gpt-5",
+      "retries": 2,
+      "timeout": 180
+    }
+  ],
+  "image_candidates": [
+    {
+      "enabled": true,
+      "provider": "dashscope_image",
+      "base_url": "https://dashscope.aliyuncs.com/api/v1",
+      "api_key": "sk-xxx",
+      "model": "qwen-image-2.0-pro",
+      "retries": 1
+    }
+  ],
+  "image_prompt_strategy": "full",
+  "image_prompt_lite_content_chars": 240,
+  "image_style": "轻插画",
+  "appid": "wx你的公众号appid",
+  "appsecret": "你的公众号appsecret"
+}
+```
+
+---
+
+## 5. LLM 接口与推荐配置
+
+本项目文本侧采用 `openai_compatible` 协议接入，建议优先选择：
+
+1. **GPT-5**（质量优先，综合稳）
+2. **MiniMax M2.5**（成本/速度平衡）
+3. **GLM-5**（中文表现友好）
+
+你只需要替换：
+
+- `base_url`
+- `api_key`
+- `model`
+
+> 不同平台 endpoint 命名可能不同，请以各平台官方文档为准。
+
+---
+
+## 6. 文生图接口与推荐配置
+
+推荐图像模型：
+
+- **qwen-image-2.0-pro**（`dashscope_image`）
+
+配置要点：
+
+- `provider`：`dashscope_image`
+- `base_url`：`https://dashscope.aliyuncs.com/api/v1`（中国区）
+- 或：`https://dashscope-intl.aliyuncs.com/api/v1`（新加坡）
+
+⚠️ 注意：
+
+- 不要给 `dashscope_image` 使用 `.../compatible-mode/v1`
+- 新用户免费额度活动可能存在，但会变动，**以官方活动页实时规则为准**
+
+可选 fallback：
+
+- 主：`openai_compatible_images`
+- 备：`dashscope_image`
+
+---
+
+## 7. 主题系统（全部主题 + 选型建议）
+
+主题使用方式：
+
+```bash
+--theme <category>/<name>
+```
+
+### 7.1 Macaron（12 个）
+
+`macaron/blue`、`coral`、`cream`、`lavender`、`lemon`、`lilac`、`mint`、`peach`、`pink`、`rose`、`sage`、`sky`
+
+适合：成长、教育、生活方式、轻知识内容。
+
+### 7.2 Wenyan（8 个）
+
+`wenyan/default`、`lapis`、`maize`、`mint`、`orange_heart`、`pie`、`purple`、`rainbow`
+
+适合：人文、观点、散文、文化类内容。
+
+### 7.3 Shuimo（1 个）
+
+`shuimo/default`
+
+适合：中式气质、养生、沉稳克制风格内容。
+
+---
+
+## 8. 在 OpenClaw 安装本项目的方法
+
+你可以把本项目 GitHub 地址交给 OpenClaw（龙虾），使用下面这条专业指令：
+
+> 请安装这个 Skill：`<项目地址>`。安装完成后，请将其设为“公众号文章”场景默认流程；后续我提出“写公众号文章/配图/发草稿”相关需求时，请自动调用该 Skill 执行“写作 → 配图 → 排版 → 推送草稿箱”的全链路任务。
+
+适合首次接入时一次性配置，后续只给选题即可。
+
+---
+
+## 9. OpenClaw 标准操作流程（含案例命令）
+
+下面是建议给 OpenClaw 的自然语言指令模板。
+
+### 9.1 新写一篇
+
+- `写一篇关于“春季养生”的公众号文章，风格干货，主题用 shuimo/default，并推送草稿箱。`
+
+### 9.2 仿写风格
+
+- `参考这篇文章的结构和语气仿写一篇“AI 时代个人效率系统”的公众号文，保持原创，推送草稿箱。`
+
+### 9.3 指定排版主题
+
+- `写一篇“低预算家庭理财入门”，排版主题用 macaron/mint，自动配图并推草稿。`
+
+### 9.4 只生成不推送
+
+- `写一篇“夏季减脂饮食清单”，先生成文章和配图，不要推送草稿。`
+
+---
+
+## 10. CLI 直接运行（不走自然语言）
+
+### 10.1 全链路（推荐）
 
 ```bash
 python scripts/run_workflow.py "春季养生" \
@@ -49,79 +243,45 @@ python scripts/run_workflow.py "春季养生" \
   --publish-draft
 ```
 
-成功后会返回：
+### 10.2 只生成内容，不推草稿
 
-- 文章 markdown/html 路径
-- 封面图与正文图路径
-- 草稿 `media_id`
-- 回读校验结果
+```bash
+python scripts/run_workflow.py "春季养生" \
+  --style 干货 \
+  --theme shuimo/default
+```
 
----
+### 10.3 低成本提示词策略
 
-## 🤖 OpenClaw 一句话调用模板
-
-将本项目地址发给 OpenClaw（龙虾）后，可使用以下专业指令完成安装与记忆绑定：
-
-> 请安装这个 Skill：`<项目地址>`。安装完成后，请将其设为“公众号文章”场景的默认流程；当我后续提出“写公众号文章/配图/发草稿”相关需求时，自动调用该 Skill 执行“写作 → 配图 → 排版 → 推送草稿箱”的全链路任务。
-
-这条指令适合首次接入时一次性配置，后续只需给出选题即可触发流程。
-
----
-
-## ⚙️ 运行说明
-
-- 建议 Python 3.10+
-- 常见依赖：`requests`、`PyYAML`、`Pillow`
-- 详细参数与流程见文档区
+```bash
+python scripts/run_workflow.py "春季养生" \
+  --style 干货 \
+  --theme shuimo/default \
+  --image-prompt-strategy lite \
+  --image-prompt-lite-chars 220
+```
 
 ---
 
-## 🧩 推荐配置模式
+## 11. 常见问题
 
-本项目采用候选列表 fallback 机制：
-
-- `llm_candidates`：文本模型候选
-- `image_candidates`：图片模型候选
-
-推荐图片候选顺序：
-
-1. `openai_compatible_images`（主）
-2. `dashscope_image`（备）
-
-> `dashscope_image` 必须使用 `.../api/v1`，不要使用 `.../compatible-mode/v1`。
+- **502 Bad Gateway**：上游接口波动，重试或依赖 fallback。
+- **404 Not Found**：大多是 `base_url` / 路径配置错误。
+- **429 Rate Limit**：触发限流，降低请求频率后重试。
+- **草稿推送失败**：检查 `appid/appsecret`、公众号 API 权限和白名单。
 
 ---
 
-## 🛠 常见问题速查
-
-- **502 Bad Gateway**：上游接口不稳定，重试或等待 fallback 接管
-- **404 Not Found**：大概率是图片 `base_url` / 路径配置错误
-- **429 Rate Limit**：触发限流，降低请求频率后重试
-- **草稿推送失败**：检查 `appid/appsecret` 和公众号 API 白名单
-
----
-
-## 📚 文档导航
-
-- 中文文档入口：`docs/zh/README.md`
-- 英文文档入口：`docs/en/README.md`
-- 中文 5 分钟上手：`docs/zh/quickstart.md`
-- 运行手册：`references/runbook.md`
-- 配置说明：`references/configuration.md`
-- Provider 说明：`references/model-providers.md`
-
----
-
-## 🔐 安全声明
+## 12. 安全与开源发布注意事项
 
 - 不要提交 `config.json`
-- 不要提交真实密钥或生产产物
-- 如密钥疑似泄露，请立即轮换
-- 对外发布前请执行 `RELEASE_CHECKLIST.md`
+- 不要提交真实 API Key、公众号密钥、生产输出
+- 密钥疑似泄露请立即轮换
+- 公开发布前执行：`RELEASE_CHECKLIST.md`
 
 ---
 
-## 🧾 许可证
+## 13. 许可证与作者
 
 Copyright © 2026 煜耀乾坤  
 GitHub: https://github.com/yuyaoqiankun
