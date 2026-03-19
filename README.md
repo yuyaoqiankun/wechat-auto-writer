@@ -14,10 +14,6 @@
 
 </div>
 
-<p align="center">
-  <img src="assets/cover.png" alt="WeChat Auto Writer Cover" width="860" />
-</p>
-
 ---
 
 ## 🎯 一句话价值
