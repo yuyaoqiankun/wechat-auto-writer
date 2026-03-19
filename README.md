@@ -1,31 +1,51 @@
-# WeChat Auto Writer（Open Edition）
+<div align="center">
+
+# 🦞 WeChat Auto Writer（Open Edition）
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![OpenClaw](https://img.shields.io/badge/OpenClaw-Skill-6f42c1)
+![Status](https://img.shields.io/badge/Status-Production%20Ready-16a34a)
 
 一个面向普通用户的 OpenClaw 公众号自动化 Skill：
 输入选题后，自动完成 **写文 → 配图 → 排版 → 推送公众号草稿箱**。
 
 > 目标：让不懂代码的运营同学，也能按文档一步步跑通全链路。
 
+</div>
+
+<p align="center">
+  <img src="assets/cover.png" alt="WeChat Auto Writer Cover" width="860" />
+</p>
+
 ---
+
+## 🎯 一句话价值
+
+把“写公众号”这件事，从零散人工操作，升级为可复用的标准流水线。
 
 ## 目录
 
-- [1. 项目介绍](#1-项目介绍)
-- [2. 核心架构与工作流程](#2-核心架构与工作流程)
-- [3. 环境要求](#3-环境要求)
-- [4. 基础配置（小白必看）](#4-基础配置小白必看)
-- [5. LLM 接口与推荐配置](#5-llm-接口与推荐配置)
-- [6. 文生图接口与推荐配置](#6-文生图接口与推荐配置)
-- [7. 主题系统（全部主题 + 选型建议）](#7-主题系统全部主题--选型建议)
-- [8. 在 OpenClaw 安装本项目的方法](#8-在-openclaw-安装本项目的方法)
-- [9. OpenClaw 标准操作流程（含案例命令）](#9-openclaw-标准操作流程含案例命令)
-- [10. CLI 直接运行（不走自然语言）](#10-cli-直接运行不走自然语言)
-- [11. 常见问题](#11-常见问题)
-- [12. 安全与开源发布注意事项](#12-安全与开源发布注意事项)
-- [13. 许可证与作者](#13-许可证与作者)
+- [🎯 一句话价值](#-一句话价值)
+- [✨ 功能特性](#-功能特性)
+- [🧭 适用人群](#-适用人群)
+- [🚀 快速开始](#-快速开始)
+- [🧱 核心架构与工作流程](#-核心架构与工作流程)
+- [🖥️ 环境要求](#️-环境要求)
+- [⚙️ 基础配置（小白必看）](#️-基础配置小白必看)
+- [🧠 LLM 接口与推荐配置](#-llm-接口与推荐配置)
+- [🖼️ 文生图接口与推荐配置](#️-文生图接口与推荐配置)
+- [🎨 主题系统（全部主题 + 选型建议）](#-主题系统全部主题--选型建议)
+- [🤖 在 OpenClaw 安装本项目的方法](#-在-openclaw-安装本项目的方法)
+- [📋 OpenClaw 标准操作流程（含案例命令）](#-openclaw-标准操作流程含案例命令)
+- [⌨️ CLI 直接运行（不走自然语言）](#️-cli-直接运行不走自然语言)
+- [🛠 常见问题](#-常见问题)
+- [🔐 安全与开源发布注意事项](#-安全与开源发布注意事项)
+- [🧾 许可证与作者](#-许可证与作者)
 
 ---
 
-## 1. 项目介绍
+## ✨ 功能特性
 
 本项目用于把公众号发文流程标准化与自动化：
 
@@ -43,7 +63,7 @@
 
 ---
 
-## 2. 核心架构与工作流程
+## 🧱 核心架构与工作流程
 
 核心脚本入口：`scripts/run_workflow.py`
 
@@ -61,7 +81,7 @@
 
 ---
 
-## 3. 环境要求
+## 🖥️ 环境要求
 
 基础要求：
 
@@ -80,7 +100,7 @@
 
 ---
 
-## 4. 基础配置（小白必看）
+## ⚙️ 基础配置（小白必看）
 
 ### 4.1 先复制配置模板
 
@@ -130,7 +150,7 @@ cp config.example.json config.json
 
 ---
 
-## 5. LLM 接口与推荐配置
+## 🧠 LLM 接口与推荐配置
 
 本项目文本侧采用 `openai_compatible` 协议接入，建议优先选择：
 
@@ -148,7 +168,7 @@ cp config.example.json config.json
 
 ---
 
-## 6. 文生图接口与推荐配置
+## 🖼️ 文生图接口与推荐配置
 
 推荐图像模型：
 
@@ -172,7 +192,7 @@ cp config.example.json config.json
 
 ---
 
-## 7. 主题系统（全部主题 + 选型建议）
+## 🎨 主题系统（全部主题 + 选型建议）
 
 主题使用方式：
 
@@ -200,7 +220,7 @@ cp config.example.json config.json
 
 ---
 
-## 8. 在 OpenClaw 安装本项目的方法
+## 🤖 在 OpenClaw 安装本项目的方法
 
 你可以把本项目 GitHub 地址交给 OpenClaw（龙虾），使用下面这条专业指令：
 
@@ -210,7 +230,7 @@ cp config.example.json config.json
 
 ---
 
-## 9. OpenClaw 标准操作流程（含案例命令）
+## 📋 OpenClaw 标准操作流程（含案例命令）
 
 下面是建议给 OpenClaw 的自然语言指令模板。
 
@@ -232,7 +252,7 @@ cp config.example.json config.json
 
 ---
 
-## 10. CLI 直接运行（不走自然语言）
+## ⌨️ CLI 直接运行（不走自然语言）
 
 ### 10.1 全链路（推荐）
 
@@ -263,7 +283,7 @@ python scripts/run_workflow.py "春季养生" \
 
 ---
 
-## 11. 常见问题
+## 🛠 常见问题
 
 - **502 Bad Gateway**：上游接口波动，重试或依赖 fallback。
 - **404 Not Found**：大多是 `base_url` / 路径配置错误。
@@ -272,7 +292,7 @@ python scripts/run_workflow.py "春季养生" \
 
 ---
 
-## 12. 安全与开源发布注意事项
+## 🔐 安全与开源发布注意事项
 
 - 不要提交 `config.json`
 - 不要提交真实 API Key、公众号密钥、生产输出
@@ -281,7 +301,7 @@ python scripts/run_workflow.py "春季养生" \
 
 ---
 
-## 13. 许可证与作者
+## 🧾 许可证与作者
 
 Copyright © 2026 煜耀乾坤  
 GitHub: https://github.com/yuyaoqiankun
