@@ -1,0 +1,50 @@
+{
+  "llm_candidates": [
+    {
+      "enabled": true,
+      "provider": "openai_compatible",
+      "base_url": "https://api.example.com/v1",
+      "api_key": "",
+      "model": "gpt-5.2",
+      "retries": 2,
+      "timeout": 180
+    },
+    {
+      "enabled": false,
+      "provider": "openai_compatible",
+      "base_url": "",
+      "api_key": "",
+      "model": "",
+      "retries": 2,
+      "timeout": 180
+    }
+  ],
+  "image_candidates": [
+    {
+      "enabled": true,
+      "provider": "openai_compatible_images",
+      "base_url": "https://api.example.com/v1",
+      "api_key": "",
+      "model": "grok-imagine-1.0",
+      "retries": 1
+    },
+    {
+      "enabled": false,
+      "provider": "openai_compatible_images",
+      "base_url": "",
+      "api_key": "",
+      "model": "",
+      "retries": 1
+    }
+  ],
+  "image_prompt_strategy": "full",
+  "image_prompt_lite_content_chars": 240,
+  "image_style": "轻插画",
+  "appid": "",
+  "appsecret": "",
+  "author": "",
+  "digest": "",
+  "content_source_url": "",
+  "thumb_crop": "900x500",
+  "default_output_dir": "./output"
+}

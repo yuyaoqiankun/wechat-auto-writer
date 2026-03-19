@@ -1,0 +1,21 @@
+# Runtime secrets
+config.json
+.env
+.env.*
+
+# Outputs and runtime artifacts
+output/
+*.log
+*.tmp
+
+# WeChat/runtime caches
+output/wechat_token_cache.json
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
